@@ -48,7 +48,8 @@ const firstFunction = () => {
                 'Add Employee',
                 'Remove Employee',
                 'Update Employee Role',
-                'Update Employee Manager'
+                'Update Employee Manager',
+                'Exit'
             ]
         })
         .then((answer) => {
@@ -75,6 +76,8 @@ const firstFunction = () => {
                 case 'Update Employee Manager':
                     updateManager();
                     break;
+                case 'Exit':
+                    process.exit();
             }
         });
 };
@@ -126,7 +129,74 @@ const viewByManager = () => {
     })    
 }
 
-const PORT = process.env.PORT || 8808;
+const addEmployee = () => {
+    inquirer
+        .prompt ([
+        {
+            name: 'employeeFirst',
+            type: 'input',
+            message: 'First Name: '
+        },
+        {
+            name: 'employeeLast',
+            type: 'input',
+            message: 'Last Name: '
+        },
+        {
+            name: 'employeeRole',
+            type: 'list',
+            message: 'Pick a job title: ',
+            choices: [
+                "Salesperson",
+                "Sales Lead",
+                "Software Engineer",
+                "Lead Engineer",
+                "Accountant",
+                "Finance Lead"
+            ]
+        }
+        ])
+        .then (res => {
+            for (i = 8; i >= 0  ; i++);
+            let firstName = res.employeeFirst
+            let lastName = res.employeeLast
+            switch(res.employeeRole) {
+                case "Salesperson":
+                    let sqlinfo = `INSERT INTO employee (id, first_name, last_name, role_id, manager_id, is_manager) VALUES (` + i + `, ` + firstName + `, ` + lastName + `, 1000, 1, FALSE)`
+                    db.query(sqlinfo, (err) => {
+                        throw err;
+                    })
+                case "Sales Lead":
+                    let sqlinfo = `INSERT INTO employee (id, first_name, last_name, role_id, manager_id, is_manager) VALUES (` + i + `, ` + firstName + `, ` + lastName + `, 1100, 0, TRUE)`
+                    db.query(sqlinfo, (err) => {
+                        throw err;
+                    })
+                case "Software Engineer":
+                    let sqlinfo = `INSERT INTO employee (id, first_name, last_name, role_id, manager_id, is_manager) VALUES (` + i + `, ` + firstName + `, ` + lastName + `, 2000, 0, FALSE)`
+                    db.query(sqlinfo, (err) => {
+                        throw err;
+                    })
+                case "Lead Engineer":
+                    let sqlinfo = `INSERT INTO employee (id, first_name, last_name, role_id, manager_id, is_manager) VALUES (` + i + `, ` + firstName + `, ` + lastName + `, 2200, 0, TRUE)`
+                    db.query(sqlinfo, (err) => {
+                        throw err;
+                    })
+                case "Accountant":
+                    let sqlinfo = `INSERT INTO employee (id, first_name, last_name, role_id, manager_id, is_manager) VALUES (` + i + `, ` + firstName + `, ` + lastName + `, 3000, 0, FALSE)`
+                    db.query(sqlinfo, (err) => {
+                        throw err;
+                    })
+                case "Finance Lead":
+                    let sqlinfo = `INSERT INTO employee (id, first_name, last_name, role_id, manager_id, is_manager) VALUES (` + i + `, ` + firstName + `, ` + lastName + `, 3300, 0, TRUE)`
+                    db.query(sqlinfo, (err) => {
+                        throw err;
+                    })
+            }
+        })
+}
+
+
+const PORT = process.env.PORT || 8800;
 
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`)
