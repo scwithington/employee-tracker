@@ -15,6 +15,7 @@ const db = mysql.createConnection({
 db.connect((err) => {
     if (err) throw err;
     console.log('Connected to MySQL');
+    firstFunction();
 });
 
 app.get('/createdb', (req, res) => {
@@ -51,46 +52,62 @@ const firstFunction = () => {
             ]
         })
         .then((answer) => {
-            switch(answer.action) {
+            switch(answer.promptInit) {
                 case 'View All Employees':
                     viewEmployees();
+                    console.table(data);
                     break;
                 case 'View All Employees By Department':
                     viewByDepartment();
                     break;
                 case 'View All Employees By Manager':
-                    function3();
+                    viewByManager()
+                    
                     break;
-                case 'Add Employee':
-                    function4();
-                    break;
-                case 'Remove Employee':
-                    function5();
-                    break;
-                case 'Update Employee Role':
-                    function6();
-                    break;
-                case 'Update Employee Manager':
-                    function7();
-                    break;
+                // case 'Add Employee':
+                //     function4();
+                //     break;
+                // case 'Remove Employee':
+                //     function5();
+                //     break;
+                // case 'Update Employee Role':
+                //     function6();
+                //     break;
+                // case 'Update Employee Manager':
+                //     function7();
+                //     break;
             }
         });
 };
 
 const viewEmployees = () => {
     return db
-        .promise()
         .query('SELECT employee.id, employee.first_name, employee.last_name, employee.role_id, employee.manager_id, role.title, role.salary, department.name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.last_name;')
 }
 
 const viewByDepartment = () => {
     return db
-        .promise()
         .query('SELECT department.name, employee.name FROM department JOIN employee ON employee.department_id = department.id ORDER BY department.name;')
 }
 
 const viewByManager = () => {
-    return db
+    db.query('SELECT id, first_name, last_name FROM employee WHERE is_manager = TRUE', (err, data) => {
+        console.log(data);
+        var choices = data.map(({id, first_name, last_name}) => ({name: first_name + ' ' + last_name, value: id}));
+        inquirer
+            .prompt ({
+                name: 'pickManager',
+                type: 'list',
+                message: 'which manager?',
+                choices: choices
+            })
+            .then (manager => {
+                console.log(manager.pickManager)
+                db.query('SELECT id, first_name, last_name FROM employee WHERE manager_id = ' + manager.pickManager, (err, data) => {
+                    console.table(data)
+                })
+            })
+    })    
 }
 
 const PORT = process.env.PORT || 8808;
