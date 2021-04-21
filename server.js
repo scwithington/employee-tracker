@@ -61,48 +61,64 @@ const firstFunction = () => {
                     viewByDepartment();
                     break;
                 case 'View All Employees By Manager':
-                    viewByManager()
-                    
+                    viewByManager();
                     break;
-                // case 'Add Employee':
-                //     function4();
-                //     break;
-                // case 'Remove Employee':
-                //     function5();
-                //     break;
-                // case 'Update Employee Role':
-                //     function6();
-                //     break;
-                // case 'Update Employee Manager':
-                //     function7();
-                //     break;
+                case 'Add Employee':
+                    addEmployee();
+                    break;
+                case 'Remove Employee':
+                    rmEmployee();
+                    break;
+                case 'Update Employee Role':
+                    updateRole();
+                    break;
+                case 'Update Employee Manager':
+                    updateManager();
+                    break;
             }
         });
 };
 
 const viewEmployees = () => {
-    return db
-        .query('SELECT employee.id, employee.first_name, employee.last_name, employee.role_id, employee.manager_id, role.title, role.salary, department.name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.last_name;')
-}
+    db.query('SELECT employee.id, employee.first_name, employee.last_name, employee.role_id, employee.manager_id, role.title, role.salary, department.name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.last_name', (err, data) => {
+        console.table(data);
+    });
+};
 
 const viewByDepartment = () => {
-    return db
-        .query('SELECT department.name, employee.name FROM department JOIN employee ON employee.department_id = department.id ORDER BY department.name;')
+    db.query('SELECT id, name FROM department ORDER BY department.name', (err, data) => {
+    // employee.name FROM department JOIN employee ON employee.department_id = department.id ORDER BY department.name
+        let choices = data.map(({id, name}) => ({name: name, value: id}));
+        // console.log(choices);
+        inquirer
+            .prompt ({
+                name: 'pickDept',
+                type: 'list',
+                message: 'Which department?',
+                choices: choices
+            })
+            .then (department => {
+                // console.log(department.pickDept)
+                db.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id WHERE department_id = ' + department.pickDept, + " ORDER BY role.id", (err, data) => {
+                    console.table(data);
+                })
+            })
+    })
 }
 
 const viewByManager = () => {
     db.query('SELECT id, first_name, last_name FROM employee WHERE is_manager = TRUE', (err, data) => {
-        console.log(data);
-        var choices = data.map(({id, first_name, last_name}) => ({name: first_name + ' ' + last_name, value: id}));
+        // console.log(data);
+        let choices = data.map(({id, first_name, last_name}) => ({name: first_name + ' ' + last_name, value: id}));
         inquirer
             .prompt ({
                 name: 'pickManager',
                 type: 'list',
-                message: 'which manager?',
+                message: 'Which manager?',
                 choices: choices
             })
             .then (manager => {
-                console.log(manager.pickManager)
+                // console.log(manager.pickManager)
                 db.query('SELECT id, first_name, last_name FROM employee WHERE manager_id = ' + manager.pickManager, (err, data) => {
                     console.table(data)
                 })
